@@ -36,6 +36,7 @@ create table if not exists public.video_jobs (
 
 create index if not exists video_jobs_user_idx on public.video_jobs (user_id, created_at desc);
 create index if not exists video_jobs_queue_idx on public.video_jobs (status, created_at);
+create index if not exists video_jobs_source_idx on public.video_jobs (source_job_id);
 
 create table if not exists public.credit_ledger (
   id bigint generated always as identity primary key,
@@ -51,21 +52,24 @@ create table if not exists public.credit_ledger (
 -- Toutes les écritures passent par le backend (clé service_role).
 -- ---------------------------------------------------------------------------
 
+create index if not exists credit_ledger_user_idx on public.credit_ledger (user_id);
+create index if not exists credit_ledger_job_idx on public.credit_ledger (job_id);
+
 alter table public.profiles enable row level security;
 alter table public.video_jobs enable row level security;
 alter table public.credit_ledger enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles
-  for select to authenticated using (id = auth.uid());
+  for select to authenticated using (id = (select auth.uid()));
 
 drop policy if exists "video_jobs_select_own" on public.video_jobs;
 create policy "video_jobs_select_own" on public.video_jobs
-  for select to authenticated using (user_id = auth.uid());
+  for select to authenticated using (user_id = (select auth.uid()));
 
 drop policy if exists "credit_ledger_select_own" on public.credit_ledger;
 create policy "credit_ledger_select_own" on public.credit_ledger
-  for select to authenticated using (user_id = auth.uid());
+  for select to authenticated using (user_id = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- Profil créé automatiquement à l'inscription (3 crédits offerts)
@@ -96,6 +100,7 @@ create trigger on_auth_user_created
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();
@@ -215,6 +220,7 @@ as $$
     and attempts >= 2;
 $$;
 
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 revoke all on function public.create_video_job(uuid, text, text, text) from public, anon, authenticated;
 revoke all on function public.refund_video_job(uuid) from public, anon, authenticated;
 revoke all on function public.claim_video_job() from public, anon, authenticated;
