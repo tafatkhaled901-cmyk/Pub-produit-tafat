@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Pub Produit",
+    "slug": "pub-produit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.pubproduit.app"
+    },
+    "android": {
+      "package": "com.pubproduit.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E0F13",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Pub Produit utilise l'appareil photo pour photographier votre produit.",
+          "photosPermission": "Pub Produit accède à vos photos pour importer l'image de votre produit."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Pub Produit accède à vos photos pour y enregistrer vos vidéos.",
+          "savePhotosPermission": "Pub Produit enregistre vos vidéos publicitaires dans votre galerie."
+        }
+      ],
+      "expo-video"
+    ]
+  }
+}
